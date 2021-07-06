@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:picgram/app/constants.dart';
 import 'package:picgram/app/modules/onboarding/onboarding_module.dart';
@@ -17,7 +20,9 @@ class AppModule extends Module {
   List<Bind> get binds => [
     Bind.singleton((i) => _sharedPreferences),
     Bind.instance(_firebaseApp),
-    Bind.factory((i) => _firebaseApp)
+    Bind.factory((i) => FirebaseAuth.instance),
+    Bind.factory((i) => FirebaseFirestore.instance),
+    Bind.factory((i) => FirebaseStorage.instance),
   ];
 
   @override
