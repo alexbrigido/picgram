@@ -10,7 +10,7 @@ class OnboardingPage extends StatefulWidget {
   @override
   OnboardingPageState createState() => OnboardingPageState();
 }
-class OnboardingPageState extends State<OnboardingPage> {
+class OnboardingPageState extends ModularState<OnboardingPage, OnboardingStore> {
 
   late PageController _pageController;
 
