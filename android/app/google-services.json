@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "324744755064",
+    "project_id": "picgram-8f1b9",
+    "storage_bucket": "picgram-8f1b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324744755064:android:08afef1bf32a8cb76efa8d",
+        "android_client_info": {
+          "package_name": "com.example.picgram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "324744755064-fslhu8lud14u4e2fdindq63991t9v4u1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKSpQiaibaIJEHErvV85mW9_5ZyLDyT5A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "324744755064-fslhu8lud14u4e2fdindq63991t9v4u1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
