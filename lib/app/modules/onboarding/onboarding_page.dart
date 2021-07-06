@@ -52,10 +52,11 @@ class OnboardingPageState extends State<OnboardingPage> {
                 ),
                 SizedBox(height: 24),
                 TextButton(
+                    child: Text('Já tem cadastro?'),
                     onPressed: () {
                       store.markOnboardingDone();
-                    },
-                    child: Text('Já tem cadastro?')
+                      Modular.to.pushReplacementNamed(Constants.Routes.LOGIN);
+                  },
                 )
 
               ],
