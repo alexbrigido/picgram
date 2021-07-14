@@ -1,27 +1,88 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:picgram/app/constants.dart';
+import 'package:picgram/app/modules/register/register_store.dart';
+import 'package:mobx/mobx.dart';
 
 class RegisterPage extends StatefulWidget {
   final String title;
-  const RegisterPage({Key? key, this.title = 'Criar sua conta'}) : super(key: key);
+  const RegisterPage({Key? key, this.title = 'Faça seu cadastro!'}) : super(key: key);
   @override
   RegisterPageState createState() => RegisterPageState();
 }
-class RegisterPageState extends State<RegisterPage> {
+class RegisterPageState extends ModularState<RegisterPage, RegisterStore> {
 
   late PageController _pageController;
+
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+
+  late final ReactionDisposer _disposer;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
+
+    _disposer = when(
+            (_) => store.user != null,
+            () => Modular.to.pushReplacementNamed(Constants.Routes.HOME)
+    );
   }
+
+  @override
+  void dispose() {
+    _disposer();
+    super.dispose();
+  }
+
+  late final Widget _form = PageView(
+    controller: _pageController,
+    scrollDirection: Axis.vertical,
+    physics: NeverScrollableScrollPhysics(),
+    children: [
+      _FormField(
+        controller: _nameController,
+        label: 'Qual é o seu nome?',
+        showsBackButton: false,
+        onNext: () {
+          _pageController.nextPage(duration: Duration(seconds: 1), curve: Curves.easeInOut);
+        },
+      ),
+      _FormField(
+        controller: _emailController,
+        label: 'Qual é o seu melhor e-mail?',
+        onNext: () {
+          _pageController.nextPage(duration: Duration(seconds: 1), curve: Curves.easeInOut);
+        },
+        onBack: () {
+          _pageController.previousPage(duration: Duration(seconds: 1), curve: Curves.easeInOut);
+        },
+      ),
+      _FormField(
+        controller: _passwordController,
+        label: 'Crie uma senha',
+        isPassword: true,
+        onNext: () {
+          store.registerUser(
+              name: _nameController.text,
+              email: _emailController.text,
+              password: _passwordController.text
+          );
+        },
+        onBack: () {
+          _pageController.previousPage(duration: Duration(seconds: 1), curve: Curves.easeInOut);
+        },
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -29,48 +90,24 @@ class RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: PageView(
-        controller: _pageController,
-        scrollDirection: Axis.vertical,
-        physics: NeverScrollableScrollPhysics(),
-        children: [
-          _FormField(
-              controller: _nameController,
-              label: 'Qual é o seu nome?',
-              showBackButton: false,
-              onNext: () {
-                _pageController.nextPage(
-                    duration: Duration(seconds: 1),
-                    curve: Curves.easeInOut);
-              },
-          ),
-          _FormField(
-              controller: _emailController,
-              label: 'Qual é o seu e-mail?',
-              onNext: () {
-                _pageController.nextPage(
-                    duration: Duration(seconds: 1),
-                    curve: Curves.easeInOut);
-              },
-              onBack: () {
-                _pageController.previousPage(
-                    duration: Duration(seconds: 1),
-                    curve: Curves.easeInOut);
-              },
-          ),
-          _FormField(
-            controller: _emailController,
-            label: 'Crie uma senha',
-            isPassword: true,
-            onNext: () {},
-            onBack: () {
-              _pageController.previousPage(
-                  duration: Duration(seconds: 1),
-                  curve: Curves.easeInOut);
-            },
-          ),
-        ],
-      )
+      body: Observer(
+        builder: (_) {
+          if (store.loading) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  Text('Aguarde... salvando seu cadastro...')
+                ],
+              ),
+            );
+          }
+          return _form;
+        },
+      ),
     );
   }
 }
@@ -80,7 +117,7 @@ class _FormField extends StatelessWidget {
   final String label;
   final VoidCallback onNext;
   final VoidCallback? onBack;
-  final bool showBackButton;
+  final bool showsBackButton;
   final bool isPassword;
   final TextEditingController controller;
 
@@ -88,9 +125,9 @@ class _FormField extends StatelessWidget {
     required this.label,
     required this.onNext,
     this.onBack,
-    this.showBackButton = true,
-    required this.controller,
-    this.isPassword = false
+    this.showsBackButton = true,
+    this.isPassword = false,
+    required this.controller
   });
 
   @override
@@ -100,31 +137,31 @@ class _FormField extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        showBackButton ? _backButton() : SizedBox.fromSize(size: Size.zero),
+        showsBackButton ? _backButton() : SizedBox.fromSize(size: Size.zero),
         Flexible(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: Text(
-                      label,
-                      style: Theme.of(context).textTheme.headline1!.copyWith(fontSize: 40),
-                      maxLines: 1,
-                    ),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FittedBox(
+                  fit: BoxFit.fitWidth,
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.headline1!.copyWith(fontSize: 40),
+                    maxLines: 1,
                   ),
-                  TextFormField(
-                    controller: controller,
-                    onEditingComplete: onNext,
-                    style: TextStyle(fontSize: 32),
-                    obscureText: isPassword,
-                  )
-                ],
-              ),
-            )
+                ),
+                TextFormField(
+                  controller: controller,
+                  onEditingComplete: onNext,
+                  style: TextStyle(fontSize: 32),
+                  obscureText: isPassword,
+                )
+              ],
+            ),
+          ),
         ),
       ],
     );
