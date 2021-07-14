@@ -7,7 +7,7 @@ import 'package:mobx/mobx.dart';
 
 class LoginPage extends StatefulWidget {
   final String title;
-  const LoginPage({Key? key, this.title = 'Instaflutter'}) : super(key: key);
+  const LoginPage({Key? key, this.title = 'PicGram'}) : super(key: key);
   @override
   LoginPageState createState() => LoginPageState();
 }
